@@ -5,6 +5,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import com.androidarchitecturecomponentsample.database.entity.Product;
 
@@ -19,8 +20,11 @@ public interface ProductDao {
     @Query("DELETE FROM product_table WHERE id = :productId")
     void delete(String productId);
 
-    @Query("UPDATE product_table SET name = :productName")
-    void update(String productId,String productName);
+    @Query("UPDATE product_table SET name = :productName WHERE id = :productId")
+    void updateProductName(String productId,String productName);
+
+    @Update
+    void update();
 
     @Delete
     void deleteAll(Product... products);
