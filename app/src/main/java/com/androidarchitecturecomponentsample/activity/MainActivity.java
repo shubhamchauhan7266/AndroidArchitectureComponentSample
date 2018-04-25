@@ -2,8 +2,26 @@ package com.androidarchitecturecomponentsample.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
+import com.androidarchitecturecomponentsample.interfaces.OnResponseListener;
+import com.androidarchitecturecomponentsample.utils.AppUrl;
+import com.androidarchitecturecomponentsample.volley.VolleySingleton;
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -11,5 +29,50 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        JSONObject  params = new JSONObject();
+        try {
+            params.put("searchSelectedBrand", "");
+            params.put("searchsSlectedCrop", "");
+            params.put("searchSelectedSize", "");
+            params.put("newLaunches", "");
+            params.put("productOnOffer", "");
+            params.put("outOfStcokCheck", "");
+            params.put("likeSearch", "");
+            params.put("pageIndex", "1");
+            params.put("pageSize", "1");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        HashMap<String, String> headerHashMap = new HashMap<>();
+        headerHashMap.put("Content-Type", "application/json");
+        headerHashMap.put("AuthToken", "lW_LActKsl9_VSB1LbDYPG");
+        onJsonRequest(params, headerHashMap);
+
+    }
+
+    public void onJsonRequest(final JSONObject params, final HashMap<String, String> headerHashMap) {
+        final JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, AppUrl.PRODUCT_DETAILS_URL,params , new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Dupont", response.toString());
+                Toast.makeText(MainActivity.this,response.toString(),Toast.LENGTH_LONG).show();
+            }
+
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("Inside REDCLUBAPP", "Error: " + error.getMessage());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return headerHashMap;
+            }
+        };
+
+        VolleySingleton.getInstance(this).add(jsonRequest);
     }
 }
