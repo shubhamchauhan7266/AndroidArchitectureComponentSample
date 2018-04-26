@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         onJsonRequest();
     }
 
+    /**
+     * this  method is used to initialize the layout
+     */
     private void initLayout() {
         recyclerView = findViewById(R.id.recyclerViewId);
     }
@@ -61,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
                 setRecyclerView();
             }
 
+            /**
+             * this method is used to set the recycler View
+             */
             private void setRecyclerView() {
 
                 ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, indentDetailsList);

@@ -12,6 +12,9 @@ import com.androidarchitecturecomponentsample.models.IndentDetails;
 
 import java.util.List;
 
+/**
+ * @author :Shubham Gupta
+ */
 public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecyclerViewAdapter.CustomViewHolder> {
 
 
