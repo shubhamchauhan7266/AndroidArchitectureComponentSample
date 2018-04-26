@@ -15,13 +15,13 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
 import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
+import com.androidarchitecturecomponentsample.database.ProductDatabase;
 import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
 import com.androidarchitecturecomponentsample.models.ProductListModel;
 import com.androidarchitecturecomponentsample.utils.AppUrl;
 import com.androidarchitecturecomponentsample.volley.VolleySingleton;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,8 +35,9 @@ import java.util.Map;
  * @author Shubham Gupta
  */
 public class MainActivity extends AppCompatActivity implements OnItemClickListener {
-    private List<Product> indentDetailsList;
-    private RecyclerView recyclerView;
+    private List<Product> mIndentDetailsList;
+    private RecyclerView mRecyclerView;
+    private ProductDatabase mProductDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +45,16 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         setContentView(R.layout.activity_main);
         initLayout();
         onJsonRequest();
+
     }
 
     /**
      * this  method is used to initialize the layout
      */
     private void initLayout() {
-        recyclerView = findViewById(R.id.recyclerViewId);
-        indentDetailsList = new ArrayList<>();
+        mRecyclerView = findViewById(R.id.recyclerViewId);
+        mIndentDetailsList = new ArrayList<>();
+        mProductDatabase =   ProductDatabase.getInstance(this);
     }
 
     /**
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 try {
                     Gson gson = new Gson();
                     productListModel = gson.fromJson(String.valueOf(response.get("Response")),ProductListModel.class);
-                    indentDetailsList = productListModel.indentDetails;
+                    mIndentDetailsList = productListModel.indentDetails;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -78,10 +81,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
              * this method is used to set the recycler View
              */
             private void setRecyclerView() {
-                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, indentDetailsList);
+                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, mIndentDetailsList);
                 LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-                recyclerView.setLayoutManager(mLayoutManager);
-                recyclerView.setAdapter(productRecyclerViewAdapter);
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                mRecyclerView.setAdapter(productRecyclerViewAdapter);
+                mProductDatabase.getProductDao().insertAll(mIndentDetailsList);
             }
 
         }, new Response.ErrorListener() {

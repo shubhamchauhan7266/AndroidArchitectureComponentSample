@@ -18,7 +18,7 @@ public interface ProductDao {
     void insert(Product product);
 
     @Insert
-    void insertAll(Product... products);
+    void insertAll(List<Product> products);
 
     @Delete()
     void delete(Product product);

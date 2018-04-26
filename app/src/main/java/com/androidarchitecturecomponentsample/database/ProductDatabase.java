@@ -16,7 +16,7 @@ public abstract class ProductDatabase extends RoomDatabase {
 
     private static ProductDatabase mProductDatabase;
 
-    static ProductDatabase getInstance(final Context context) {
+    public  static ProductDatabase getInstance(final Context context) {
         if (mProductDatabase == null) {
             synchronized (ProductDatabase.class) {
                 if (mProductDatabase == null) {
