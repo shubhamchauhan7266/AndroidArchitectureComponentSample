@@ -12,6 +12,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
+import com.androidarchitecturecomponentsample.models.ProductListResponseModel;
 import com.androidarchitecturecomponentsample.utils.AppUrl;
 import com.androidarchitecturecomponentsample.volley.VolleySingleton;
 
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 Log.e("Dupont", response.toString());
-                Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_LONG).show();
+                ProductListResponseModel productListResponseModel = new ProductListResponseModel(response);
             }
 
         }, new Response.ErrorListener() {
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("Inside REDCLUBAPP", "Error: " + error.getMessage());
+                error.printStackTrace();
             }
         }) {
             @Override
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 return getHeader();
             }
         };
-
+        jsonRequest.setShouldCache(false);
         VolleySingleton.getInstance(this).add(jsonRequest);
     }
 
@@ -91,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public HashMap<String, String> getHeader() {
         HashMap<String, String> headerHashMap = new HashMap<>();
-        headerHashMap.put("Content-Type", "application/json");
         headerHashMap.put("AuthToken", "lW_LActKsl9_VSB1LbDYPG");
         return headerHashMap;
     }

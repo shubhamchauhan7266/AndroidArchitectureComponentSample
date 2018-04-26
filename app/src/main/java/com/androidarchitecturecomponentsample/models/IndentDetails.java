@@ -1,6 +1,12 @@
 package com.androidarchitecturecomponentsample.models;
 
-public class IndentDetails {
+import java.io.Serializable;
+
+/**
+ * @author Shubham Gupta
+ */
+
+public class IndentDetails  implements Serializable{
 
     private String itemName;
     private Double dealerPrice;
