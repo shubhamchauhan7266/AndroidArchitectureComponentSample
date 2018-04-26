@@ -50,7 +50,7 @@ public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecy
     @Override
     public void onBindViewHolder(@NonNull final CustomViewHolder customViewHolder, @SuppressLint("RecyclerView") final int position) {
         Product product = indentDetails.get(position);
-        customViewHolder.textViewProductId.setText(product.getProductId());
+        customViewHolder.textViewProductId.setText(product.getProductCode());
         customViewHolder.textViewProductName.setText(product.getProductName());
         customViewHolder.textViewProductPrice.setText(String.valueOf(product.getProductPrice()));
 

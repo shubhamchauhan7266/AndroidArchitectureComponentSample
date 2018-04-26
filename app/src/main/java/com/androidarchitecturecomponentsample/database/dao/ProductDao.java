@@ -23,8 +23,8 @@ public interface ProductDao {
     @Delete()
     void delete(Product product);
 
-    @Query("UPDATE product_table SET itemName = :productName WHERE itemCode = :productId")
-    void updateProductName(String productId, String productName);
+    @Query("UPDATE product_table SET itemName = :productName WHERE itemCode = :productCode")
+    void updateProductName(String productCode, String productName);
 
     @Update
     void update(Product product);
@@ -32,6 +32,6 @@ public interface ProductDao {
     @Delete
     void deleteAll(Product... products);
 
-    @Query("SELECT itemCode,itemName,dealerPrice FROM product_table")
-    LiveData<List<Product>> getAllProducts();
+    @Query("SELECT productId,itemCode,itemName,dealerPrice FROM product_table")
+    List<Product> getAllProducts();
 }

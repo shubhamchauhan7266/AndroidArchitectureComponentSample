@@ -8,18 +8,17 @@ import android.support.annotation.NonNull;
 import com.google.gson.annotations.SerializedName;
 
 /**
- *
- *
  * @author Shubham Chauhan
  */
 @Entity(tableName = "product_table")
 public class Product {
 
-    @PrimaryKey()
-    @NonNull
+    @PrimaryKey(autoGenerate = true)
+    private int productId;
+
     @SerializedName("itemCode")
     @ColumnInfo(name = "itemCode")
-    private String productId;
+    private String productCode;
 
     @SerializedName("itemName")
     @ColumnInfo(name = "itemName")
@@ -29,12 +28,20 @@ public class Product {
     @ColumnInfo(name = "dealerPrice")
     private int productPrice;
 
-    public String getProductId() {
+    public int getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
     }
 
     public String getProductName() {

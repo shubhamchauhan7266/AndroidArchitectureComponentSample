@@ -17,6 +17,7 @@ import com.androidarchitecturecomponentsample.R;
 import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
 import com.androidarchitecturecomponentsample.database.ProductDatabase;
 import com.androidarchitecturecomponentsample.database.entity.Product;
+import com.androidarchitecturecomponentsample.database.handler.ProductDatabaseHandler;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
 import com.androidarchitecturecomponentsample.models.ProductListModel;
 import com.androidarchitecturecomponentsample.utils.AppUrl;
@@ -37,15 +38,15 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements OnItemClickListener {
     private List<Product> mIndentDetailsList;
     private RecyclerView mRecyclerView;
-    private ProductDatabase mProductDatabase;
+    private ProductDatabaseHandler mProductDatabaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initLayout();
-        onJsonRequest();
-
+//        onJsonRequest();
+        setRecyclerView();
     }
 
     /**
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private void initLayout() {
         mRecyclerView = findViewById(R.id.recyclerViewId);
         mIndentDetailsList = new ArrayList<>();
-        mProductDatabase =   ProductDatabase.getInstance(this);
+        mProductDatabaseHandler =  new ProductDatabaseHandler(getApplication());
     }
 
     /**
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         final JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, AppUrl.PRODUCT_DETAILS_URL, getJsonPayload(), new Response.Listener<JSONObject>() {
 
             @Override
-            public void onResponse(JSONObject response) {
+            public void onResponse(JSONObject  response) {
                 Log.e("Dupont", response.toString());
                 ProductListModel productListModel = null;
                 try {
@@ -74,18 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                setRecyclerView();
-            }
-
-            /**
-             * this method is used to set the recycler View
-             */
-            private void setRecyclerView() {
-                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, mIndentDetailsList);
-                LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-                mRecyclerView.setLayoutManager(mLayoutManager);
-                mRecyclerView.setAdapter(productRecyclerViewAdapter);
-                mProductDatabase.getProductDao().insertAll(mIndentDetailsList);
+//                setRecyclerView();
             }
 
         }, new Response.ErrorListener() {
@@ -104,6 +94,18 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         jsonRequest.setShouldCache(false);
         VolleySingleton.getInstance(this).add(jsonRequest);
+    }
+
+    /**
+     * this method is used to set the recycler View
+     */
+    private void setRecyclerView() {
+        mIndentDetailsList = mProductDatabaseHandler.getAllProducts();
+        ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, mIndentDetailsList);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(productRecyclerViewAdapter);
+//                mProductDatabaseHandler.insertAll(mIndentDetailsList);
     }
 
     /**
