@@ -15,6 +15,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
 import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
+import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
 import com.androidarchitecturecomponentsample.models.IndentDetails;
 import com.androidarchitecturecomponentsample.models.ProductListResponseModel;
 import com.androidarchitecturecomponentsample.utils.AppUrl;
@@ -31,7 +32,7 @@ import java.util.Map;
 /**
  * @author Shubham Gupta
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener {
     private List<IndentDetails> indentDetailsList = new ArrayList<>();
     private RecyclerView recyclerView;
 
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
              */
             private void setRecyclerView() {
 
-                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, indentDetailsList);
+                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, MainActivity.this, indentDetailsList);
                 LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 recyclerView.setLayoutManager(mLayoutManager);
                 recyclerView.setAdapter(productRecyclerViewAdapter);
@@ -124,5 +125,16 @@ public class MainActivity extends AppCompatActivity {
         HashMap<String, String> headerHashMap = new HashMap<>();
         headerHashMap.put("AuthToken", "lW_LActKsl9_VSB1LbDYPG");
         return headerHashMap;
+    }
+
+    @Override
+    public void onItemClick(int postion) {
+Toast.makeText(MainActivity.this,"itemClick",Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onItemLongPressedListener(int position) {
+
+        Toast.makeText(MainActivity.this,"item Long pressed ",Toast.LENGTH_LONG).show();
     }
 }

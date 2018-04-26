@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.androidarchitecturecomponentsample.R;
+import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
 import com.androidarchitecturecomponentsample.models.IndentDetails;
 
 import java.util.List;
@@ -18,10 +19,14 @@ import java.util.List;
 public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecyclerViewAdapter.CustomViewHolder> {
 
 
+    private Context context;
     private List<IndentDetails> indentDetails;
+    private OnItemClickListener onItemClickListener;
 
-    public ProductRecyclerViewAdapter(Context context, List<IndentDetails> indentDetails) {
+    public ProductRecyclerViewAdapter(OnItemClickListener onItemClickListener, Context context, List<IndentDetails> indentDetails) {
         this.indentDetails = indentDetails;
+        this.context = context;
+        this.onItemClickListener = onItemClickListener;
     }
 
     /**
@@ -49,6 +54,20 @@ public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecy
         customViewHolder.textViewProductId.setText(details.getItemCode());
         customViewHolder.textViewProductName.setText(details.getItemName());
         customViewHolder.textViewProductPrice.setText(String.valueOf(details.getDealerPrice()));
+        customViewHolder.listItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onItemClickListener.onItemClick(position);
+            }
+
+        });
+        customViewHolder.listItem.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                onItemClickListener.onItemLongPressedListener(position);
+                return true;
+            }
+        });
     }
 
     @Override
@@ -63,12 +82,14 @@ public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecy
     class CustomViewHolder extends RecyclerView.ViewHolder {
 
         TextView textViewProductName, textViewProductPrice, textViewProductId;
+        View listItem;
 
         CustomViewHolder(View view) {
             super(view);
             textViewProductName = view.findViewById(R.id.textViewProductName);
             textViewProductPrice = view.findViewById(R.id.textViewProductPrice);
             textViewProductId = view.findViewById(R.id.textViewProductId);
+            listItem = view.findViewById(R.id.list_item);
         }
     }
 
