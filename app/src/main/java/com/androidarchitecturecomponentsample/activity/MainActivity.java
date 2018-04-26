@@ -15,11 +15,13 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
 import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
+import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
-import com.androidarchitecturecomponentsample.models.IndentDetails;
-import com.androidarchitecturecomponentsample.models.ProductListResponseModel;
+import com.androidarchitecturecomponentsample.models.ProductListModel;
 import com.androidarchitecturecomponentsample.utils.AppUrl;
 import com.androidarchitecturecomponentsample.volley.VolleySingleton;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +35,7 @@ import java.util.Map;
  * @author Shubham Gupta
  */
 public class MainActivity extends AppCompatActivity implements OnItemClickListener {
-    private List<IndentDetails> indentDetailsList = new ArrayList<>();
+    private List<Product> indentDetailsList;
     private RecyclerView recyclerView;
 
     @Override
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
      */
     private void initLayout() {
         recyclerView = findViewById(R.id.recyclerViewId);
+        indentDetailsList = new ArrayList<>();
     }
 
     /**
@@ -60,8 +63,14 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             @Override
             public void onResponse(JSONObject response) {
                 Log.e("Dupont", response.toString());
-                ProductListResponseModel productListResponseModel = new ProductListResponseModel(response);
-                indentDetailsList.addAll(productListResponseModel.getResponse().getIndentDetails());
+                ProductListModel productListModel = null;
+                try {
+                    Gson gson = new Gson();
+                    productListModel = gson.fromJson(String.valueOf(response.get("Response")),ProductListModel.class);
+                    indentDetailsList = productListModel.indentDetails;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 setRecyclerView();
             }
 
@@ -69,8 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
              * this method is used to set the recycler View
              */
             private void setRecyclerView() {
-
-                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, MainActivity.this, indentDetailsList);
+                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, indentDetailsList);
                 LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 recyclerView.setLayoutManager(mLayoutManager);
                 recyclerView.setAdapter(productRecyclerViewAdapter);
@@ -89,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 return getHeader();
             }
         };
+
         jsonRequest.setShouldCache(false);
         VolleySingleton.getInstance(this).add(jsonRequest);
     }
@@ -129,12 +138,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public void onItemClick(int postion) {
-Toast.makeText(MainActivity.this,"itemClick",Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, "itemClick", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onItemLongPressedListener(int position) {
-
-        Toast.makeText(MainActivity.this,"item Long pressed ",Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, "item Long pressed ", Toast.LENGTH_LONG).show();
     }
 }

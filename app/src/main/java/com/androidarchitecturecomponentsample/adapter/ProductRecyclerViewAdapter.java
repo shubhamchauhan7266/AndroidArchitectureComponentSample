@@ -1,6 +1,7 @@
 package com.androidarchitecturecomponentsample.adapter;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.androidarchitecturecomponentsample.R;
+import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
-import com.androidarchitecturecomponentsample.models.IndentDetails;
 
 import java.util.List;
 
@@ -18,26 +19,24 @@ import java.util.List;
  */
 public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecyclerViewAdapter.CustomViewHolder> {
 
-
-    private Context context;
-    private List<IndentDetails> indentDetails;
+    private List<Product> indentDetails;
     private OnItemClickListener onItemClickListener;
 
-    public ProductRecyclerViewAdapter(OnItemClickListener onItemClickListener, Context context, List<IndentDetails> indentDetails) {
+    public ProductRecyclerViewAdapter(OnItemClickListener onItemClickListener,List<Product> indentDetails) {
         this.indentDetails = indentDetails;
-        this.context = context;
         this.onItemClickListener = onItemClickListener;
     }
 
     /**
      * it contains the object of CustomView Class
      *
-     * @param viewGroup
-     * @param i
+     * @param viewGroup viewGroup
+     * @param viewType viewType
      * @return
      */
+    @NonNull
     @Override
-    public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public CustomViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.product_item, viewGroup, false);
         return new CustomViewHolder(view);
     }
@@ -46,14 +45,15 @@ public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecy
      * this method is used to  bind the view with CustomViewHolder class according to the position.
      *
      * @param customViewHolder : it contains the object of CustomViewHolder Class
-     * @param position
+     * @param position position
      */
     @Override
-    public void onBindViewHolder(final CustomViewHolder customViewHolder, final int position) {
-        IndentDetails details = indentDetails.get(position);
-        customViewHolder.textViewProductId.setText(details.getItemCode());
-        customViewHolder.textViewProductName.setText(details.getItemName());
-        customViewHolder.textViewProductPrice.setText(String.valueOf(details.getDealerPrice()));
+    public void onBindViewHolder(@NonNull final CustomViewHolder customViewHolder, @SuppressLint("RecyclerView") final int position) {
+        Product product = indentDetails.get(position);
+        customViewHolder.textViewProductId.setText(product.getProductId());
+        customViewHolder.textViewProductName.setText(product.getProductName());
+        customViewHolder.textViewProductPrice.setText(String.valueOf(product.getProductPrice()));
+
         customViewHolder.listItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

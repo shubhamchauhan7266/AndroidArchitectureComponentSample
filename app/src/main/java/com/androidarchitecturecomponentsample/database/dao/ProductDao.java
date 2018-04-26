@@ -15,20 +15,23 @@ import java.util.List;
 public interface ProductDao {
 
     @Insert
-    void insert(Product word);
+    void insert(Product product);
 
-    @Query("DELETE FROM product_table WHERE id = :productId")
-    void delete(String productId);
+    @Insert
+    void insertAll(Product... products);
 
-    @Query("UPDATE product_table SET name = :productName WHERE id = :productId")
-    void updateProductName(String productId,String productName);
+    @Delete()
+    void delete(Product product);
+
+    @Query("UPDATE product_table SET itemName = :productName WHERE itemCode = :productId")
+    void updateProductName(String productId, String productName);
 
     @Update
-    void update();
+    void update(Product product);
 
     @Delete
     void deleteAll(Product... products);
 
-    @Query("SELECT id,name,price,quantity FROM product_table")
+    @Query("SELECT itemCode,itemName,dealerPrice FROM product_table")
     LiveData<List<Product>> getAllProducts();
 }

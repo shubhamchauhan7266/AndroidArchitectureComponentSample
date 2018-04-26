@@ -5,6 +5,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  *
  *
@@ -13,19 +15,19 @@ import android.support.annotation.NonNull;
 @Entity(tableName = "product_table")
 public class Product {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey()
     @NonNull
-    @ColumnInfo(name = "id")
+    @SerializedName("itemCode")
+    @ColumnInfo(name = "itemCode")
     private String productId;
 
-    @ColumnInfo(name = "name")
+    @SerializedName("itemName")
+    @ColumnInfo(name = "itemName")
     private String productName;
 
-    @ColumnInfo(name = "price")
+    @SerializedName("dealerPrice")
+    @ColumnInfo(name = "dealerPrice")
     private int productPrice;
-
-    @ColumnInfo(name = "quantity")
-    private int productQuantity;
 
     public String getProductId() {
         return productId;
@@ -49,13 +51,5 @@ public class Product {
 
     public void setProductPrice(int productPrice) {
         this.productPrice = productPrice;
-    }
-
-    public int getProductQuantity() {
-        return productQuantity;
-    }
-
-    public void setProductQuantity(int productQuantity) {
-        this.productQuantity = productQuantity;
     }
 }
