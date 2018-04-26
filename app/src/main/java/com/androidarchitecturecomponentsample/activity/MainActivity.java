@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         onJsonRequest();
     }
 
@@ -77,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
             params.put("productOnOffer", "");
             params.put("outOfStcokCheck", "");
             params.put("likeSearch", "");
-            params.put("pageIndex", "1");
-            params.put("pageSize", "1");
+            params.put("pageIndex", 1);
+            params.put("pageSize", 1);
         } catch (JSONException e) {
             e.printStackTrace();
         }
