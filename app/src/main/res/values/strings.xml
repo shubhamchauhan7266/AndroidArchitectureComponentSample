@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AndroidArchitectureComponentSample</string>
+    <string name="productPrice">Product Price</string>
 </resources>

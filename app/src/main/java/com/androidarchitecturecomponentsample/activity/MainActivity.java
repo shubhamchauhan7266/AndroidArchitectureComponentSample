@@ -2,6 +2,8 @@ package com.androidarchitecturecomponentsample.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,6 +14,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
+import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
+import com.androidarchitecturecomponentsample.models.IndentDetails;
 import com.androidarchitecturecomponentsample.models.ProductListResponseModel;
 import com.androidarchitecturecomponentsample.utils.AppUrl;
 import com.androidarchitecturecomponentsample.volley.VolleySingleton;
@@ -19,19 +23,28 @@ import com.androidarchitecturecomponentsample.volley.VolleySingleton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Shubham Gupta
  */
 public class MainActivity extends AppCompatActivity {
+    private List<IndentDetails> indentDetailsList = new ArrayList<>();
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initLayout();
         onJsonRequest();
+    }
+
+    private void initLayout() {
+        recyclerView = findViewById(R.id.recyclerViewId);
     }
 
     /**
@@ -44,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 Log.e("Dupont", response.toString());
                 ProductListResponseModel productListResponseModel = new ProductListResponseModel(response);
+                indentDetailsList.addAll(productListResponseModel.getResponse().getIndentDetails());
+                setRecyclerView();
+            }
+
+            private void setRecyclerView() {
+
+                ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, indentDetailsList);
+                LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+                recyclerView.setLayoutManager(mLayoutManager);
+                recyclerView.setAdapter(productRecyclerViewAdapter);
             }
 
         }, new Response.ErrorListener() {
