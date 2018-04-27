@@ -6,61 +6,73 @@ import android.os.AsyncTask;
 import com.androidarchitecturecomponentsample.database.ProductDatabase;
 import com.androidarchitecturecomponentsample.database.dao.ProductDao;
 import com.androidarchitecturecomponentsample.database.entity.Product;
+import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 
 import java.util.List;
 
 public class ProductDatabaseController {
 
+    private IDatabaseListener iDatabaseListener;
     private ProductDao mProductDao;
     private List<Product> mAllProducts;
 
-    public ProductDatabaseController(Application application) {
+    public ProductDatabaseController(Application application, IDatabaseListener iDatabaseListener) {
         ProductDatabase productDatabase = ProductDatabase.getInstance(application);
+        this.iDatabaseListener = iDatabaseListener;
         mProductDao = productDatabase.getProductDao();
-        new fetchAsyncTask(mProductDao).execute();
+    }
+
+    public void execute(int productsCategory, ProductDao dao, Object objectData) {
+        ProductCallAsyncTask productCallAsyncTask = new ProductCallAsyncTask(dao, productsCategory);
+        productCallAsyncTask.execute(objectData);
     }
 
     public List<Product> getAllProducts() {
         return mAllProducts;
     }
 
-
-    public void insertAll (List<Product> products) {
-        new insertAsyncTask(mProductDao).execute(products);
-    }
-
-    private static class insertAsyncTask extends AsyncTask<List<Product>, Void, Void> {
+    private class ProductCallAsyncTask<T, X> extends AsyncTask<T, Void, Boolean> {
 
         private ProductDao mAsyncTaskDao;
+        private int productCat;
+        private Object objectData;
+        ;
 
-        insertAsyncTask(ProductDao dao) {
+        ProductCallAsyncTask(ProductDao dao, int productCat) {
             mAsyncTaskDao = dao;
+            this.productCat = productCat;
+
         }
 
-        @SafeVarargs
+
         @Override
-        protected final Void doInBackground(final List<Product>... params) {
-            mAsyncTaskDao.insertAll(params[0]);
-            return null;
+        protected Boolean doInBackground(T... ts) {
+
+            switch (productCat) {
+                case 1: {
+                    objectData = mAsyncTaskDao.getAllProducts();
+                    return true;
+                }
+                case 2: {
+                    List<Product> products = (List<Product>) ts[0];
+                    mAsyncTaskDao.insertAll(products);
+                    return true;
+                }
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            if (result) {
+                iDatabaseListener.onSucess(objectData);
+            } else {
+                iDatabaseListener.onError("Error during fetching the database ");
+            }
+
         }
     }
 
-    private class fetchAsyncTask extends AsyncTask<Void, Void, List<Product>> {
-
-        private ProductDao mAsyncTaskDao;
-
-        fetchAsyncTask(ProductDao dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected List<Product> doInBackground(Void... voids) {
-            return mAsyncTaskDao.getAllProducts();
-        }
-
-        @Override
-        protected void onPostExecute(List<Product> products) {
-            mAllProducts=products;
-        }
-    }
 }
