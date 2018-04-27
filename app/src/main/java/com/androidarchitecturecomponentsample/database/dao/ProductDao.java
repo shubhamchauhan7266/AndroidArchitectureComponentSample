@@ -30,7 +30,7 @@ public interface ProductDao {
     void update(Product product);
 
     @Delete
-    void deleteAll(Product... products);
+    void deleteAll(List<Product> products);
 
     @Query("SELECT productId,itemCode,itemName,dealerPrice FROM product_table")
     List<Product> getAllProducts();

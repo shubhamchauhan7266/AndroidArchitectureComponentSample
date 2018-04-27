@@ -5,4 +5,6 @@ public interface AppConstant {
 
     // Request Code
     int INSERT_ALL = 1;
+    int DELETE_ALL = 2;
+    int RETRIEVE_ALL = 3;
 }

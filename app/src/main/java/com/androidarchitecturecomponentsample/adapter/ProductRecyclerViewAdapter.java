@@ -27,6 +27,10 @@ public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecy
         this.onItemClickListener = onItemClickListener;
     }
 
+    public void setIndentDetails(List<Product> indentDetails) {
+        this.indentDetails = indentDetails;
+    }
+
     /**
      * it contains the object of CustomView Class
      *

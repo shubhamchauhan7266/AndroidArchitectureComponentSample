@@ -1,10 +1,12 @@
 package com.androidarchitecturecomponentsample.activity;
 
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -18,8 +20,10 @@ import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter
 import com.androidarchitecturecomponentsample.database.controller.ProductDatabaseController;
 import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.AppConstant;
+import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
 import com.androidarchitecturecomponentsample.models.ProductListModel;
+import com.androidarchitecturecomponentsample.utils.OtherUtil;
 import com.androidarchitecturecomponentsample.utils.VolleySingleton;
 import com.google.gson.Gson;
 
@@ -34,18 +38,27 @@ import java.util.Map;
 /**
  * @author Shubham Gupta
  */
-public class MainActivity extends AppCompatActivity implements OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, IDatabaseListener {
     private List<Product> mIndentDetailsList;
     private RecyclerView mRecyclerView;
     private ProductDatabaseController mProductDatabaseController;
+    private View mRootView;
+    private ProductRecyclerViewAdapter mProductRecyclerViewAdapter;
+    private View mProgressbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initLayout();
-//        onJsonRequest();
-        setRecyclerView();
+        mProgressbar.setVisibility(View.VISIBLE);
+
+        if (!OtherUtil.isNetworkEnabled(MainActivity.this)) {
+            Snackbar.make(mRootView, "Internet not connected", Snackbar.LENGTH_SHORT).show();
+            mProductDatabaseController.getAllProducts();
+        } else {
+            onJsonRequest();
+        }
     }
 
     /**
@@ -53,8 +66,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
      */
     private void initLayout() {
         mRecyclerView = findViewById(R.id.recyclerViewId);
+        mRootView = findViewById(R.id.rootView);
+        mProgressbar = findViewById(R.id.fl_progressbar);
         mIndentDetailsList = new ArrayList<>();
-        mProductDatabaseController =  new ProductDatabaseController(getApplication());
+        mProductDatabaseController = new ProductDatabaseController(getApplication(), this);
+        setRecyclerView();
     }
 
     /**
@@ -64,17 +80,18 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         final JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, AppConstant.PRODUCT_DETAILS_URL, getJsonPayload(), new Response.Listener<JSONObject>() {
 
             @Override
-            public void onResponse(JSONObject  response) {
+            public void onResponse(JSONObject response) {
                 Log.e("Dupont", response.toString());
                 ProductListModel productListModel = null;
                 try {
                     Gson gson = new Gson();
-                    productListModel = gson.fromJson(String.valueOf(response.get("Response")),ProductListModel.class);
+                    productListModel = gson.fromJson(String.valueOf(response.get("Response")), ProductListModel.class);
                     mIndentDetailsList = productListModel.indentDetails;
+                    mProductDatabaseController.insertAll(mIndentDetailsList);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    mProgressbar.setVisibility(View.GONE);
                 }
-//                setRecyclerView();
             }
 
         }, new Response.ErrorListener() {
@@ -83,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d("Inside REDCLUBAPP", "Error: " + error.getMessage());
                 error.printStackTrace();
+                mProgressbar.setVisibility(View.GONE);
             }
         }) {
             @Override
@@ -99,12 +117,10 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
      * this method is used to set the recycler View
      */
     private void setRecyclerView() {
-        mIndentDetailsList = mProductDatabaseController.getAllProducts();
-        ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, mIndentDetailsList);
+        mProductRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, mIndentDetailsList);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(productRecyclerViewAdapter);
-//                mProductDatabaseController.insertAll(mIndentDetailsList);
+        mRecyclerView.setAdapter(mProductRecyclerViewAdapter);
     }
 
     /**
@@ -149,5 +165,44 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     @Override
     public void onItemLongPressedListener(int position) {
         Toast.makeText(MainActivity.this, "item Long pressed ", Toast.LENGTH_LONG).show();
+    }
+
+
+    @Override
+    public void onSucess(int requestCode, Object response) {
+        switch (requestCode) {
+            case AppConstant.INSERT_ALL:
+                mProductDatabaseController.deleteAllProducts(mIndentDetailsList);
+                break;
+
+            case AppConstant.RETRIEVE_ALL:
+                mIndentDetailsList = (List<Product>) response;
+                mProductRecyclerViewAdapter.setIndentDetails(mIndentDetailsList);
+                mProductRecyclerViewAdapter.notifyDataSetChanged();
+                mProgressbar.setVisibility(View.GONE);
+                break;
+
+            case AppConstant.DELETE_ALL:
+                mProductDatabaseController.getAllProducts();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onError(int requestCode, String error) {
+        switch (requestCode) {
+            case AppConstant.INSERT_ALL:
+                break;
+
+            case AppConstant.RETRIEVE_ALL:
+                break;
+
+            default:
+                break;
+        }
+        mProgressbar.setVisibility(View.GONE);
     }
 }
