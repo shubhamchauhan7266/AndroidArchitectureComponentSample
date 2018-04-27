@@ -1,7 +1,6 @@
-package com.androidarchitecturecomponentsample.database.handler;
+package com.androidarchitecturecomponentsample.database.controller;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
 
 import com.androidarchitecturecomponentsample.database.ProductDatabase;
@@ -10,12 +9,12 @@ import com.androidarchitecturecomponentsample.database.entity.Product;
 
 import java.util.List;
 
-public class ProductDatabaseHandler {
+public class ProductDatabaseController {
 
     private ProductDao mProductDao;
     private List<Product> mAllProducts;
 
-    public ProductDatabaseHandler(Application application) {
+    public ProductDatabaseController(Application application) {
         ProductDatabase productDatabase = ProductDatabase.getInstance(application);
         mProductDao = productDatabase.getProductDao();
         new fetchAsyncTask(mProductDao).execute();

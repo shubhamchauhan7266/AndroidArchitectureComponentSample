@@ -15,12 +15,11 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
 import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
-import com.androidarchitecturecomponentsample.database.ProductDatabase;
+import com.androidarchitecturecomponentsample.database.controller.ProductDatabaseController;
 import com.androidarchitecturecomponentsample.database.entity.Product;
-import com.androidarchitecturecomponentsample.database.handler.ProductDatabaseHandler;
+import com.androidarchitecturecomponentsample.interfaces.AppConstant;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
 import com.androidarchitecturecomponentsample.models.ProductListModel;
-import com.androidarchitecturecomponentsample.utils.AppUrl;
 import com.androidarchitecturecomponentsample.volley.VolleySingleton;
 import com.google.gson.Gson;
 
@@ -38,7 +37,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements OnItemClickListener {
     private List<Product> mIndentDetailsList;
     private RecyclerView mRecyclerView;
-    private ProductDatabaseHandler mProductDatabaseHandler;
+    private ProductDatabaseController mProductDatabaseController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +54,14 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private void initLayout() {
         mRecyclerView = findViewById(R.id.recyclerViewId);
         mIndentDetailsList = new ArrayList<>();
-        mProductDatabaseHandler =  new ProductDatabaseHandler(getApplication());
+        mProductDatabaseController =  new ProductDatabaseController(getApplication());
     }
 
     /**
      * Method is used to getProduct list from server.
      */
     public void onJsonRequest() {
-        final JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, AppUrl.PRODUCT_DETAILS_URL, getJsonPayload(), new Response.Listener<JSONObject>() {
+        final JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, AppConstant.PRODUCT_DETAILS_URL, getJsonPayload(), new Response.Listener<JSONObject>() {
 
             @Override
             public void onResponse(JSONObject  response) {
@@ -100,12 +99,12 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
      * this method is used to set the recycler View
      */
     private void setRecyclerView() {
-        mIndentDetailsList = mProductDatabaseHandler.getAllProducts();
+        mIndentDetailsList = mProductDatabaseController.getAllProducts();
         ProductRecyclerViewAdapter productRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, mIndentDetailsList);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(productRecyclerViewAdapter);
-//                mProductDatabaseHandler.insertAll(mIndentDetailsList);
+//                mProductDatabaseController.insertAll(mIndentDetailsList);
     }
 
     /**
