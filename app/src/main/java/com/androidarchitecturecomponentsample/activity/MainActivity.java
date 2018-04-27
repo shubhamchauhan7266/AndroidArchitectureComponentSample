@@ -15,15 +15,12 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
 import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
-import com.androidarchitecturecomponentsample.asynctask.UpdateAsyncTask;
-import com.androidarchitecturecomponentsample.database.ProductDatabase;
 import com.androidarchitecturecomponentsample.database.controller.ProductDatabaseController;
 import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.AppConstant;
-import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
 import com.androidarchitecturecomponentsample.models.ProductListModel;
-import com.androidarchitecturecomponentsample.volley.VolleySingleton;
+import com.androidarchitecturecomponentsample.utils.VolleySingleton;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
