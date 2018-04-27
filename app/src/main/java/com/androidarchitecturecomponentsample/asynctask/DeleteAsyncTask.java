@@ -5,23 +5,23 @@ import android.os.AsyncTask;
 import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 
 /**
- * @author :Shubham Chauhan
- * @param <T> : it contains the  Object data
- * @param <X> : it contains the Dao
+ * @author :Shubham Gupta
+ * @param <T> : it contains  the  Object  Data .
+ * @param <X>  : it contain the Dao
  */
-public class RetrieveAsyncTask<T, X> extends AsyncTask<T, Void, Boolean> {
+public class DeleteAsyncTask<T, X> extends AsyncTask<T, Void, Boolean> {
     private int requestCode;
     private X dao;
     private IDatabaseListener iDatabaseListener;
 
-    public RetrieveAsyncTask(IDatabaseListener iDatabaseListener, X dao, int requestCode) {
+    public DeleteAsyncTask(IDatabaseListener iDatabaseListener, X dao, int requestCode) {
         this.iDatabaseListener = iDatabaseListener;
         this.dao = dao;
         this.requestCode = requestCode;
     }
 
     @Override
-    protected Boolean doInBackground(T... object) {
+    protected Boolean doInBackground(T... ts) {
         return true;
     }
 
@@ -33,5 +33,6 @@ public class RetrieveAsyncTask<T, X> extends AsyncTask<T, Void, Boolean> {
         } else {
             iDatabaseListener.onError("Error Occured while fetching data from Database.");
         }
+
     }
 }

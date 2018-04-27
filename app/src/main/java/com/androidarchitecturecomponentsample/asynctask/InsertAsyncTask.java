@@ -7,6 +7,11 @@ import com.androidarchitecturecomponentsample.database.entity.Product;
 
 import java.util.List;
 
+/**
+ * @author :Shubham Chauhan
+ * @param <T> : it contains the Object Data
+ * @param <X> :  it contains the Dao
+ */
 public class InsertAsyncTask<T,X> extends AsyncTask<T, Void, Void> {
     private X mAsyncTaskDao;
     private int mRequestCode;
