@@ -2,6 +2,7 @@ package com.androidarchitecturecomponentsample.application;
 
 import android.app.Application;
 
+
 import com.androidarchitecturecomponentsample.interfaces.ApiClient;
 
 import java.util.concurrent.TimeUnit;
@@ -11,13 +12,14 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.androidarchitecturecomponentsample.interfaces.AppConstant.BASE_URL;
+
 public class MyApplication extends Application {
 
     private static Retrofit sRetrofit;
     public static final int NETWORK_TIMEOUT = 60;
     public static final String DEFAULT_METADATA_TIME = "3661000";
     public static final String DEFAULT_LAST_METADATA = "0";
-    private String BASE_URL = "";
 
     @Override
     public void onCreate() {
