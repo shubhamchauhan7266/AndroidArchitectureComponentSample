@@ -1,6 +1,7 @@
 package com.androidarchitecturecomponentsample.ui.presenter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.androidarchitecturecomponentsample.application.MyApplication;
 import com.androidarchitecturecomponentsample.interfaces.ApiClient;
@@ -19,7 +20,7 @@ public class ProductListPresenter {
     private final ApiClient mNetworkApi;
     private final ProductListView mView;
 
-    public ProductListPresenter(Context context, ProductListView view) {
+    public ProductListPresenter(ProductListView view) {
         this.mNetworkApi = MyApplication.getClient();
         mView = view;
     }
@@ -27,24 +28,24 @@ public class ProductListPresenter {
     /**
      * Method is used to get ProductList from Api.
      */
-    public void getProductList(){
+    public void getProductList() {
         Call<ProductListResponse> responseCall = mNetworkApi.getProductList(getHeader(),getJsonPayload());
         responseCall.enqueue(new Callback<ProductListResponse>() {
             @Override
-            public void onResponse(Call<ProductListResponse> call, Response<ProductListResponse> response) {
+            public void onResponse(@NonNull Call<ProductListResponse> call, @NonNull Response<ProductListResponse> response) {
                 mView.hideProgressBar();
                 if (response != null && response.body() != null) {
-                     ProductListResponse productListResponse = response.body();
-                     if(productListResponse.IsStatus){
-                         mView.onProductListResponse(productListResponse);
-                     }
+                    ProductListResponse productListResponse = response.body();
+                    if (productListResponse != null && productListResponse.IsStatus) {
+                        mView.onProductListResponse(productListResponse);
+                    }
                 } else {
                     mView.onResponseFailer(new Exception("Something went wrong"));
                 }
             }
 
             @Override
-            public void onFailure(Call<ProductListResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ProductListResponse> call, @NonNull Throwable t) {
                 mView.hideProgressBar();
                 mView.onResponseFailer(t);
             }
@@ -59,6 +60,7 @@ public class ProductListPresenter {
     private HashMap<String, String> getHeader() {
         HashMap<String, String> headerHashMap = new HashMap<>();
         headerHashMap.put("AuthToken", "lW_LActKsl9_VSB1LbDYPG");
+        headerHashMap.put("Content-Type", "application/json");
         return headerHashMap;
     }
 
@@ -67,8 +69,8 @@ public class ProductListPresenter {
      *
      * @return jsonPayload
      */
-    private JSONObject getJsonPayload() {
-        JSONObject params = new JSONObject();
+    private Object getJsonPayload() {
+        HashMap<String,String> params = new HashMap<>();
         try {
             params.put("searchSelectedBrand", "");
             params.put("searchsSlectedCrop", "");
@@ -77,18 +79,21 @@ public class ProductListPresenter {
             params.put("productOnOffer", "");
             params.put("outOfStcokCheck", "");
             params.put("likeSearch", "");
-            params.put("pageIndex", 1);
-            params.put("pageSize", 1);
-        } catch (JSONException e) {
+            params.put("pageIndex", "1");
+            params.put("pageSize", "1");
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return params;
     }
 
-    public interface ProductListView{
+    public interface ProductListView {
         void onProductListResponse(ProductListResponse productListResponse);
+
         void onResponseFailer(Throwable t);
+
         void showProgressBar();
+
         void hideProgressBar();
     }
 }

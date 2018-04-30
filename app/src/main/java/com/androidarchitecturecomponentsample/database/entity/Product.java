@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -17,14 +18,17 @@ public class Product {
     private int productId;
 
     @SerializedName("itemCode")
+    @Expose
     @ColumnInfo(name = "itemCode")
     private String productCode;
 
     @SerializedName("itemName")
+    @Expose
     @ColumnInfo(name = "itemName")
     private String productName;
 
     @SerializedName("dealerPrice")
+    @Expose
     @ColumnInfo(name = "dealerPrice")
     private int productPrice;
 
