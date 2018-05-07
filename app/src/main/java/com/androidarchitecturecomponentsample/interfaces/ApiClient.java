@@ -13,6 +13,6 @@ import retrofit2.http.Query;
 
 public interface ApiClient {
 
-    @POST("PlaceAnOrder/GetIndentPlaceOrderDetailsWithProductsComplete?userCode=CMH-0075")
+    @POST("api/PlaceAnOrder/GetIndentPlaceOrderDetailsWithProductsComplete?userCode=CMH-0075")
     Call<ProductListResponse> getProductList(@HeaderMap Map<String, String> header,@Body Object object);
 }

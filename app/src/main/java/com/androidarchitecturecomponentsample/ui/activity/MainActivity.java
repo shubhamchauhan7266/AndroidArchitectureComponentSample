@@ -17,7 +17,6 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.androidarchitecturecomponentsample.R;
 import com.androidarchitecturecomponentsample.adapter.ProductRecyclerViewAdapter;
-import com.androidarchitecturecomponentsample.database.controller.ProductDatabaseController;
 import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.AppConstant;
 import com.androidarchitecturecomponentsample.interfaces.OnItemClickListener;
@@ -26,7 +25,6 @@ import com.androidarchitecturecomponentsample.models.ProductListResponse;
 import com.androidarchitecturecomponentsample.ui.presenter.ProductListPresenter;
 import com.androidarchitecturecomponentsample.utils.OtherUtil;
 import com.androidarchitecturecomponentsample.utils.VolleySingleton;
-import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -40,10 +38,9 @@ import java.util.Map;
 /**
  * @author Shubham Gupta
  */
-public class MainActivity extends AppCompatActivity implements OnItemClickListener, IDatabaseListener, ProductListPresenter.ProductListView {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, ProductListPresenter.ProductListView {
     private List<Product> mIndentDetailsList;
     private RecyclerView mRecyclerView;
-    private ProductDatabaseController mProductDatabaseController;
     private View mRootView;
     private ProductRecyclerViewAdapter mProductRecyclerViewAdapter;
     private View mProgressbar;
@@ -55,13 +52,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         setContentView(R.layout.activity_main);
         initLayout();
 
-        showProgressBar();
-        if (!OtherUtil.isNetworkEnabled(this)) {
-            Snackbar.make(mRootView, "", Snackbar.LENGTH_SHORT).show();
-            mProductDatabaseController.getAllProducts();
-        } else {
-            mProductListPresenter.getProductList();
-        }
+        mProductListPresenter.getProductList();
     }
 
     /**
@@ -73,48 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         mProgressbar = findViewById(R.id.fl_progressbar);
 
         mIndentDetailsList = new ArrayList<>();
-        mProductListPresenter = new ProductListPresenter(this);
-        mProductDatabaseController = new ProductDatabaseController(getApplication(), this);
-        setRecyclerView();
-    }
-
-    /**
-     * Method is used to getProduct list from server.
-     */
-    public void onJsonRequest() {
-        final JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, AppConstant.PRODUCT_DETAILS_URL, getJsonPayload(), new Response.Listener<JSONObject>() {
-
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.e("Dupont", response.toString());
-                ProductListModel productListModel = null;
-                try {
-                    Gson gson = new Gson();
-                    productListModel = gson.fromJson(String.valueOf(response.get("Response")), ProductListModel.class);
-                    mIndentDetailsList = productListModel.indentDetails;
-                    mProductDatabaseController.deleteAllProducts(mIndentDetailsList);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    hideProgressBar();
-                }
-            }
-
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d("Inside REDCLUBAPP", "Error: " + error.getMessage());
-                error.printStackTrace();
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return getHeader();
-            }
-        };
-
-        jsonRequest.setShouldCache(false);
-        VolleySingleton.getInstance(this).add(jsonRequest);
+        mProductListPresenter = new ProductListPresenter(MainActivity.this,this,getApplication());
     }
 
     /**
@@ -127,40 +77,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         mRecyclerView.setAdapter(mProductRecyclerViewAdapter);
     }
 
-    /**
-     * Method is used to get Json Payload for Product Api.
-     *
-     * @return jsonPayload
-     */
-    public JSONObject getJsonPayload() {
-        JSONObject params = new JSONObject();
-        try {
-            params.put("searchSelectedBrand", "");
-            params.put("searchsSlectedCrop", "");
-            params.put("searchSelectedSize", "");
-            params.put("newLaunches", "");
-            params.put("productOnOffer", "");
-            params.put("outOfStcokCheck", "");
-            params.put("likeSearch", "");
-            params.put("pageIndex", 1);
-            params.put("pageSize", 1);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return params;
-    }
-
-    /**
-     * Method is used to get header for Product Api.
-     *
-     * @return header
-     */
-    public HashMap<String, String> getHeader() {
-        HashMap<String, String> headerHashMap = new HashMap<>();
-        headerHashMap.put("AuthToken", "lW_LActKsl9_VSB1LbDYPG");
-        return headerHashMap;
-    }
-
     @Override
     public void onItemClick(int postion) {
         Toast.makeText(MainActivity.this, "itemClick", Toast.LENGTH_LONG).show();
@@ -171,46 +87,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         Toast.makeText(MainActivity.this, "item Long pressed ", Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public void onSucess(int requestCode, Object response) {
-        switch (requestCode) {
-
-            case AppConstant.INSERT_ALL:
-                mProductDatabaseController.getAllProducts();
-                break;
-
-            case AppConstant.DELETE_ALL:
-                mProductDatabaseController.insertAll(mIndentDetailsList);
-                break;
-
-            case AppConstant.RETRIEVE_ALL:
-                hideProgressBar();
-                mIndentDetailsList = (List<Product>) response;
-                mProductRecyclerViewAdapter.setIndentDetails(mIndentDetailsList);
-                mProductRecyclerViewAdapter.notifyDataSetChanged();
-                break;
-        }
-    }
 
     @Override
-    public void onError(int requestCode, String error) {
-        switch (requestCode) {
-
-            case AppConstant.INSERT_ALL:
-                break;
-
-            case AppConstant.DELETE_ALL:
-                break;
-
-            case AppConstant.RETRIEVE_ALL:
-                break;
-        }
-        hideProgressBar();
-    }
-
-    @Override
-    public void onProductListResponse(ProductListResponse productListResponse) {
-        mProductDatabaseController.deleteAllProducts(productListResponse.Response.indentDetails);
+    public void onProductListResponse(List<Product> products) {
+        mIndentDetailsList = products;
+        setRecyclerView();
     }
 
     @Override

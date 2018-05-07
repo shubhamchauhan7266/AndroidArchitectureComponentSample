@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
@@ -14,10 +15,10 @@ import java.util.List;
 @Dao
 public interface ProductDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Product product);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<Product> products);
 
     @Delete()
@@ -26,7 +27,7 @@ public interface ProductDao {
     @Query("UPDATE product_table SET itemName = :productName WHERE itemCode = :productCode")
     void updateProductName(String productCode, String productName);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(Product product);
 
     @Delete

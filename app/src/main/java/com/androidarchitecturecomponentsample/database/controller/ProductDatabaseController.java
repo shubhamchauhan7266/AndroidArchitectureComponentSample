@@ -22,20 +22,12 @@ public class ProductDatabaseController {
         mProductDao = productDatabase.getProductDao();
     }
 
-    public void execute(int requestCode, Object objectData) {
-        new ProductCallAsyncTask( requestCode).execute(objectData);
-    }
-
     public void insertAll(Object objectData) {
         new ProductCallAsyncTask(AppConstant.INSERT_ALL).execute(objectData);
     }
 
     public void getAllProducts() {
         new ProductCallAsyncTask(AppConstant.RETRIEVE_ALL).execute();
-    }
-
-    public void deleteAllProducts(Object objectData) {
-        new ProductCallAsyncTask(AppConstant.RETRIEVE_ALL).execute(objectData);
     }
 
 
@@ -63,12 +55,6 @@ public class ProductDatabaseController {
                     return true;
                 }
 
-                case AppConstant.DELETE_ALL:{
-                    List<Product> products = (List<Product>) objectData[0];
-                    mProductDao.deleteAll(products);
-                    return true;
-                }
-
                 default:
                     return false;
             }
@@ -78,9 +64,9 @@ public class ProductDatabaseController {
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
             if (result) {
-                iDatabaseListener.onSucess(mRequestCode,mResponse);
+                iDatabaseListener.onDbOperationSucess(mRequestCode,mResponse);
             } else {
-                iDatabaseListener.onError(mRequestCode,"Error during fetching the database ");
+                iDatabaseListener.onDbOperationFailed(mRequestCode,"Error during fetching the database ");
             }
         }
     }

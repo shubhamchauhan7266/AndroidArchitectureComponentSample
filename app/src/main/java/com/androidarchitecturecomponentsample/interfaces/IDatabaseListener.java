@@ -6,7 +6,7 @@ package com.androidarchitecturecomponentsample.interfaces;
  */
 public interface IDatabaseListener {
 
-    void onSucess(int requestCode,Object response);
+    void onDbOperationSucess(int requestCode, Object response);
 
-    void onError(int requestCode,String error);
+    void onDbOperationFailed(int requestCode, String error);
 }
