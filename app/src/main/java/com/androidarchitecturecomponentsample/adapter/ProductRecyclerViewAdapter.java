@@ -1,7 +1,9 @@
 package com.androidarchitecturecomponentsample.adapter;
 
-import android.annotation.SuppressLint;
+import android.arch.lifecycle.LiveData;
+import android.arch.paging.PagedListAdapter;
 import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,18 +19,13 @@ import java.util.List;
 /**
  * @author :Shubham Gupta
  */
-public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecyclerViewAdapter.CustomViewHolder> {
+public class ProductRecyclerViewAdapter extends PagedListAdapter<Product, ProductRecyclerViewAdapter.CustomViewHolder> {
 
-    private List<Product> indentDetails;
     private OnItemClickListener onItemClickListener;
 
-    public ProductRecyclerViewAdapter(OnItemClickListener onItemClickListener,List<Product> indentDetails) {
-        this.indentDetails = indentDetails;
+    public ProductRecyclerViewAdapter(OnItemClickListener onItemClickListener) {
+        super(DIFF_CALLBACK);
         this.onItemClickListener = onItemClickListener;
-    }
-
-    public void setIndentDetails(List<Product> indentDetails) {
-        this.indentDetails = indentDetails;
     }
 
     /**
@@ -45,40 +42,31 @@ public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecy
         return new CustomViewHolder(view);
     }
 
-    /**
-     * this method is used to  bind the view with CustomViewHolder class according to the position.
-     *
-     * @param customViewHolder : it contains the object of CustomViewHolder Class
-     * @param position position
-     */
     @Override
-    public void onBindViewHolder(@NonNull final CustomViewHolder customViewHolder, @SuppressLint("RecyclerView") final int position) {
-        Product product = indentDetails.get(position);
-        customViewHolder.textViewProductId.setText(product.getProductCode());
-        customViewHolder.textViewProductName.setText(product.getProductName());
-        customViewHolder.textViewProductPrice.setText(String.valueOf(product.getProductPrice()));
-
-        customViewHolder.listItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onItemClickListener.onItemClick(position);
-            }
-
-        });
-        customViewHolder.listItem.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                onItemClickListener.onItemLongPressedListener(position);
-                return true;
-            }
-        });
+    public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
+        Product product = getItem(position);
+        if (product != null) {
+            holder.bindTo(product,position);
+        }/* else {
+            // Null defines a placeholder item - PagedListAdapter will automatically invalidate
+            // this row when the actual object is loaded from the database
+        }*/
     }
 
-    @Override
-    public int getItemCount() {
-        return (null != indentDetails ? indentDetails.size() : 0);
-    }
-
+    public static final DiffUtil.ItemCallback<Product> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<Product>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull Product oldProduct, @NonNull Product newProduct) {
+                    // User properties may have changed if reloaded from the DB, but ID is fixed
+                    return oldProduct.getProductId() == newProduct.getProductId();
+                }
+                @Override
+                public boolean areContentsTheSame(@NonNull Product oldProduct, @NonNull Product newProduct) {
+                    // NOTE: if you use equals, your object must properly override Object#equals()
+                    // Incorrectly returning false here will result in too many animations.
+                    return oldProduct.equals(newProduct);
+                }
+            };
 
     /**
      * View holder class for RecyclerView
@@ -94,6 +82,27 @@ public class ProductRecyclerViewAdapter extends RecyclerView.Adapter<ProductRecy
             textViewProductPrice = view.findViewById(R.id.textViewProductPrice);
             textViewProductId = view.findViewById(R.id.textViewProductId);
             listItem = view.findViewById(R.id.list_item);
+        }
+
+        public void bindTo(Product product, final int position) {
+            textViewProductId.setText(product.getProductCode());
+            textViewProductName.setText(product.getProductName());
+            textViewProductPrice.setText(String.valueOf(product.getProductPrice()));
+
+            listItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onItemClick(position);
+                }
+
+            });
+            listItem.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    onItemClickListener.onItemLongPressedListener(position);
+                    return true;
+                }
+            });
         }
     }
 

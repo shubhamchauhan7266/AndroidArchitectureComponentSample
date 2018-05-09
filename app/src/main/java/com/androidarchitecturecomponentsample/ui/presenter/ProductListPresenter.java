@@ -1,30 +1,27 @@
 package com.androidarchitecturecomponentsample.ui.presenter;
 
 import android.app.Application;
+import android.arch.lifecycle.LiveData;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 
 import com.androidarchitecturecomponentsample.application.MyApplication;
 import com.androidarchitecturecomponentsample.database.controller.ProductDatabaseController;
 import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.ApiClient;
-import com.androidarchitecturecomponentsample.interfaces.AppConstant;
-import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 import com.androidarchitecturecomponentsample.models.ProductListResponse;
 import com.androidarchitecturecomponentsample.utils.OtherUtil;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductListPresenter implements IDatabaseListener {
+public class ProductListPresenter {
     private final ApiClient mNetworkApi;
     private final ProductListView mView;
     private Context mContext;
@@ -32,9 +29,23 @@ public class ProductListPresenter implements IDatabaseListener {
 
     public ProductListPresenter(Context context, ProductListView view, Application application) {
         this.mNetworkApi = MyApplication.getClient();
-        mProductDatabaseController = new ProductDatabaseController(application, this);
+        mProductDatabaseController = new ProductDatabaseController(application);
         mView = view;
         mContext = context;
+    }
+
+    /**
+     * Method is used to get ProductList from Database.
+     *
+     * @return PagedList<Product>
+     */
+    public LiveData<PagedList<Product>> getProductListFromDatabase() {
+        PagedList.Config pagedListConfig =
+                (new PagedList.Config.Builder()).setEnablePlaceholders(true)
+                        .setPrefetchDistance(10)
+                        .setPageSize(20).build();
+
+        return (LiveData<PagedList<Product>>) (new LivePagedListBuilder(mProductDatabaseController.getAllProducts(), pagedListConfig)).build();
     }
 
     /**
@@ -42,10 +53,7 @@ public class ProductListPresenter implements IDatabaseListener {
      */
     public void getProductList() {
         mView.showProgressBar();
-        if (!OtherUtil.isNetworkEnabled(mContext)) {
-            mProductDatabaseController.getAllProducts();
-        } else {
-
+        if (OtherUtil.isNetworkEnabled(mContext)) {
             Call<ProductListResponse> responseCall = mNetworkApi.getProductList(getHeader(), getJsonPayload());
             responseCall.enqueue(new Callback<ProductListResponse>() {
                 @Override
@@ -55,21 +63,18 @@ public class ProductListPresenter implements IDatabaseListener {
                         ProductListResponse productListResponse = response.body();
                         if (productListResponse != null && productListResponse.IsStatus) {
                             mProductDatabaseController.insertAll(productListResponse.Response.indentDetails);
-                            mView.onProductListResponse(productListResponse.Response.indentDetails);
                         }
-                    } else {
-                        mView.onResponseFailer(new Exception("Something went wrong"));
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<ProductListResponse> call, @NonNull Throwable t) {
                     mView.hideProgressBar();
-                    mView.onResponseFailer(t);
                 }
             });
         }
     }
+
 
     /**
      * Method is used to get header for Product Api.
@@ -106,31 +111,7 @@ public class ProductListPresenter implements IDatabaseListener {
         return params;
     }
 
-    @Override
-    public void onDbOperationSucess(int requestCode, Object response) {
-        mView.hideProgressBar();
-
-        switch (requestCode) {
-
-            case AppConstant.INSERT_ALL:
-                break;
-
-            case AppConstant.RETRIEVE_ALL:
-                List<Product> products = (List<Product>) response;
-                mView.onProductListResponse(products);
-                break;
-        }
-    }
-
-    @Override
-    public void onDbOperationFailed(int requestCode, String error) {
-
-    }
-
     public interface ProductListView {
-        void onProductListResponse(List<Product> products);
-
-        void onResponseFailer(Throwable t);
 
         void showProgressBar();
 

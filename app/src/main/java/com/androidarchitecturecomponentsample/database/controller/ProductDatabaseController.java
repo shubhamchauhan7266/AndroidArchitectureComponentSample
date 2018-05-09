@@ -1,6 +1,7 @@
 package com.androidarchitecturecomponentsample.database.controller;
 
 import android.app.Application;
+import android.arch.paging.DataSource;
 import android.os.AsyncTask;
 
 import com.androidarchitecturecomponentsample.database.ProductDatabase;
@@ -13,28 +14,30 @@ import java.util.List;
 
 public class ProductDatabaseController {
 
-    private IDatabaseListener iDatabaseListener;
     private ProductDao mProductDao;
+    private DataSource.Factory<Integer,Product> mDataSourceFactory;
 
-    public ProductDatabaseController(Application application, IDatabaseListener iDatabaseListener) {
+    public ProductDatabaseController(Application application) {
         ProductDatabase productDatabase = ProductDatabase.getInstance(application);
-        this.iDatabaseListener = iDatabaseListener;
         mProductDao = productDatabase.getProductDao();
+        mDataSourceFactory = mProductDao.getAllProducts();
+    }
+
+    /**
+     *
+     * @return DataSource.Factory<Integer,Product>
+     */
+    public DataSource.Factory<Integer,Product> getAllProducts() {
+        return mDataSourceFactory;
     }
 
     public void insertAll(Object objectData) {
         new ProductCallAsyncTask(AppConstant.INSERT_ALL).execute(objectData);
     }
 
-    public void getAllProducts() {
-        new ProductCallAsyncTask(AppConstant.RETRIEVE_ALL).execute();
-    }
-
-
     private class ProductCallAsyncTask extends AsyncTask<Object, Void, Boolean> {
 
           private int mRequestCode;
-        private Object mResponse;
 
         ProductCallAsyncTask(int requestCode) {
                  mRequestCode = requestCode;
@@ -44,10 +47,6 @@ public class ProductDatabaseController {
         protected Boolean doInBackground(Object... objectData) {
 
             switch (mRequestCode) {
-                case AppConstant.RETRIEVE_ALL: {
-                    mResponse = mProductDao.getAllProducts();
-                    return true;
-                }
 
                 case AppConstant.INSERT_ALL: {
                     List<Product> products = (List<Product>) objectData[0];
@@ -57,16 +56,6 @@ public class ProductDatabaseController {
 
                 default:
                     return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            super.onPostExecute(result);
-            if (result) {
-                iDatabaseListener.onDbOperationSucess(mRequestCode,mResponse);
-            } else {
-                iDatabaseListener.onDbOperationFailed(mRequestCode,"Error during fetching the database ");
             }
         }
     }

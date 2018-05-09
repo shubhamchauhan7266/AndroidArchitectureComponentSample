@@ -1,5 +1,11 @@
 package com.androidarchitecturecomponentsample.ui.activity;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,7 +45,7 @@ import java.util.Map;
  * @author Shubham Gupta
  */
 public class MainActivity extends AppCompatActivity implements OnItemClickListener, ProductListPresenter.ProductListView {
-    private List<Product> mIndentDetailsList;
+    private LiveData<PagedList<Product>> mIndentDetailsList;
     private RecyclerView mRecyclerView;
     private View mRootView;
     private ProductRecyclerViewAdapter mProductRecyclerViewAdapter;
@@ -50,7 +56,15 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         initLayout();
+
+        mProductListPresenter.getProductListFromDatabase().observe(this, new Observer<PagedList<Product>>() {
+            @Override
+            public void onChanged(@Nullable PagedList<Product> products) {
+                mProductRecyclerViewAdapter.submitList(products);
+            }
+        });
 
         mProductListPresenter.getProductList();
     }
@@ -63,15 +77,15 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         mRootView = findViewById(R.id.rootView);
         mProgressbar = findViewById(R.id.fl_progressbar);
 
-        mIndentDetailsList = new ArrayList<>();
-        mProductListPresenter = new ProductListPresenter(MainActivity.this,this,getApplication());
+        mProductListPresenter = new ProductListPresenter(MainActivity.this, this, getApplication());
+        setRecyclerView();
     }
 
     /**
      * this method is used to set the recycler View
      */
     private void setRecyclerView() {
-        mProductRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this, mIndentDetailsList);
+        mProductRecyclerViewAdapter = new ProductRecyclerViewAdapter(MainActivity.this);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mProductRecyclerViewAdapter);
@@ -85,18 +99,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     @Override
     public void onItemLongPressedListener(int position) {
         Toast.makeText(MainActivity.this, "item Long pressed ", Toast.LENGTH_LONG).show();
-    }
-
-
-    @Override
-    public void onProductListResponse(List<Product> products) {
-        mIndentDetailsList = products;
-        setRecyclerView();
-    }
-
-    @Override
-    public void onResponseFailer(Throwable t) {
-        Snackbar.make(mRootView, t.toString(), Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
