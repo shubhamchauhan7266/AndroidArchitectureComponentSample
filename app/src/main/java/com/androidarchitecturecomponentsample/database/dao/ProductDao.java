@@ -35,5 +35,5 @@ public interface ProductDao {
     void deleteAll(List<Product> products);
 
     @Query("SELECT productId,itemCode,itemName,dealerPrice FROM product_table")
-    public abstract DataSource.Factory<Integer,Product> getAllProducts();
+    DataSource.Factory<Integer,Product> getAllProducts();
 }
