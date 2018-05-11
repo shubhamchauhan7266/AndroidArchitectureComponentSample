@@ -1,4 +1,4 @@
-package com.androidarchitecturecomponentsample.ui.presenter;
+package com.androidarchitecturecomponentsample.presenter;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
@@ -8,7 +8,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.androidarchitecturecomponentsample.application.MyApplication;
-import com.androidarchitecturecomponentsample.database.controller.ProductDatabaseController;
+import com.androidarchitecturecomponentsample.viewmodel.ProductViewModel;
 import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.ApiClient;
 import com.androidarchitecturecomponentsample.models.ProductListResponse;
@@ -25,11 +25,11 @@ public class ProductListPresenter {
     private final ApiClient mNetworkApi;
     private final ProductListView mView;
     private Context mContext;
-    private final ProductDatabaseController mProductDatabaseController;
+    private final ProductViewModel mProductViewModel;
 
     public ProductListPresenter(Context context, ProductListView view, Application application) {
         this.mNetworkApi = MyApplication.getClient();
-        mProductDatabaseController = new ProductDatabaseController(application);
+        mProductViewModel = new ProductViewModel(application);
         mView = view;
         mContext = context;
     }
@@ -45,7 +45,7 @@ public class ProductListPresenter {
                         .setPrefetchDistance(10)
                         .setPageSize(20).build();
 
-        return (LiveData<PagedList<Product>>) (new LivePagedListBuilder(mProductDatabaseController.getAllProducts(), pagedListConfig)).build();
+        return (LiveData<PagedList<Product>>) (new LivePagedListBuilder(mProductViewModel.getAllProducts(), pagedListConfig)).build();
     }
 
     /**
@@ -62,7 +62,7 @@ public class ProductListPresenter {
                     if (response != null && response.body() != null) {
                         ProductListResponse productListResponse = response.body();
                         if (productListResponse != null && productListResponse.IsStatus) {
-                            mProductDatabaseController.insertAll(productListResponse.Response.indentDetails);
+                            mProductViewModel.insertAll(productListResponse.Response.indentDetails);
                         }
                     }
                 }

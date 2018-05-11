@@ -1,6 +1,7 @@
-package com.androidarchitecturecomponentsample.database.controller;
+package com.androidarchitecturecomponentsample.viewmodel;
 
 import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.arch.paging.DataSource;
 import android.os.AsyncTask;
 
@@ -12,12 +13,13 @@ import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 
 import java.util.List;
 
-public class ProductDatabaseController {
+public class ProductViewModel extends AndroidViewModel {
 
     private ProductDao mProductDao;
     private DataSource.Factory<Integer,Product> mDataSourceFactory;
 
-    public ProductDatabaseController(Application application) {
+    public ProductViewModel(Application application) {
+        super(application);
         ProductDatabase productDatabase = ProductDatabase.getInstance(application);
         mProductDao = productDatabase.getProductDao();
         mDataSourceFactory = mProductDao.getAllProducts();
