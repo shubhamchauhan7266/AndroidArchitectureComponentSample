@@ -9,10 +9,14 @@ import com.androidarchitecturecomponentsample.database.ProductDatabase;
 import com.androidarchitecturecomponentsample.database.dao.ProductDao;
 import com.androidarchitecturecomponentsample.database.entity.Product;
 import com.androidarchitecturecomponentsample.interfaces.AppConstant;
-import com.androidarchitecturecomponentsample.interfaces.IDatabaseListener;
 
 import java.util.List;
 
+/**
+ * This class is a view model class.
+ *
+ * @author Shubham Chauhan
+ */
 public class ProductViewModel extends AndroidViewModel {
 
     private ProductDao mProductDao;
@@ -26,6 +30,7 @@ public class ProductViewModel extends AndroidViewModel {
     }
 
     /**
+     * Method is used to get All Products from Database.
      *
      * @return DataSource.Factory<Integer,Product>
      */
@@ -34,25 +39,30 @@ public class ProductViewModel extends AndroidViewModel {
     }
 
     public void insertAll(Object objectData) {
-        new ProductCallAsyncTask(AppConstant.INSERT_ALL).execute(objectData);
+        new ProductCallAsyncTask(AppConstant.INSERT_ALL,mProductDao).execute(objectData);
     }
 
-    private class ProductCallAsyncTask extends AsyncTask<Object, Void, Boolean> {
+    /**
+     * This AsyncTask class is used to perform Db operation in background thread.
+     */
+    private static class ProductCallAsyncTask extends AsyncTask<Object, Void, Boolean> {
 
-          private int mRequestCode;
+          private int requestCode;
+          private ProductDao productDao;
 
-        ProductCallAsyncTask(int requestCode) {
-                 mRequestCode = requestCode;
+        ProductCallAsyncTask(int requestCode,ProductDao productDao) {
+                 this.requestCode = requestCode;
+                 this.productDao = productDao;
         }
 
         @Override
         protected Boolean doInBackground(Object... objectData) {
 
-            switch (mRequestCode) {
+            switch (requestCode) {
 
                 case AppConstant.INSERT_ALL: {
                     List<Product> products = (List<Product>) objectData[0];
-                    mProductDao.insertAll(products);
+                    productDao.insertAll(products);
                     return true;
                 }
 
